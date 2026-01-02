@@ -273,6 +273,15 @@ public class KickAttackAction extends PhysicalAttackAction {
             return new ToHitData(TargetRoll.IMPOSSIBLE, "Attacker is prone");
         }
 
+        // Prone 'Mechs can only be kicked if they are at the same level as the attacker
+        // See BMM 7th Printing, Physical Attacks and Prone 'Mechs
+        if ((target instanceof Entity) && ((Entity) target).isProne()) {
+            if (targetElevation != attackerElevation) {
+                return new ToHitData(TargetRoll.IMPOSSIBLE,
+                      Messages.getString("PhysicalAttackAction.ProneMekKick"));
+            }
+        }
+
         if (ae.isHullDown()) {
             return new ToHitData(TargetRoll.IMPOSSIBLE, "Attacker is hull down");
         }
@@ -280,7 +289,7 @@ public class KickAttackAction extends PhysicalAttackAction {
         // Attacks against adjacent buildings automatically hit.
         if ((target.getTargetType() == Targetable.TYPE_BUILDING)
               || (target.getTargetType() == Targetable.TYPE_FUEL_TANK)
-              || (target instanceof GunEmplacement)) {
+              || (target.isBuildingEntityOrGunEmplacement())) {
             return new ToHitData(TargetRoll.AUTOMATIC_SUCCESS,
                   "Targeting adjacent building.");
         }
